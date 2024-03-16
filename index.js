@@ -3,7 +3,6 @@ const connectDB = require("./Utils/blogConnect");
 const { handleRoute } = require("./routes/blogRouter");
 const port = process.env.PORT || 5000;
 const bodyParser = require("body-parser");
-//const { options } = require("joi");
 const jsonParser = bodyParser.json();
 const server = http.createServer().listen(port);
 console.log(`listening on port ${port}`);
@@ -11,25 +10,24 @@ connectDB();
 
 server.on("request", function (req, res) {
   console.log(`METHOD:${req.method};URL:${res.url}`);
-  //console.log('hhhh')
+ 
   switch (req.method) {
     case "GET":
     case "PUT":
     case "POST":
     case "DELETE":
     case "PATCH":
-      res.writeHead(200, {
-        "Content-Type": "application/json",
-        "Access-Control-Allow-Origin": "*", // REQUIRED CORS HEADER
-        "Access-Control-Allow-Headers":
-          "Origin, X-Requested-With, Content-Type, Accept", // REQUIRED CORS HEADER
-      });
+      // res.writeHead(200, {
+      //   "Content-Type": "application/json",
+      //   "Access-Control-Allow-Origin": "*", // REQUIRED CORS HEADER
+      //   "Access-Control-Allow-Headers":
+      //     "Origin, X-Requested-With, Content-Type, Accept", // REQUIRED CORS HEADER
+      // });
       jsonParser(req, res, function () {
         handleRoute(req, res);
       });
       //handleRoute(request,response)
 
-      res.end();
       break;
     case "OPTIONS":
       res.writeHead(200, {

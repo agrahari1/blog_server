@@ -9,11 +9,12 @@ async function handleRoute(req, res) {
     case "/signup":
       if (method === "POST") {
         return await blogController.signup(req, res);
-        // res.end("Hello");
+       
       } else {
         res.writeHead(405, { "Content-Type": "text/plain" });
         res.end("405 Method not allowed");
       }
+      
       break;
 
     case "/login":
@@ -44,7 +45,7 @@ async function handleRoute(req, res) {
 
     case "/forgotPassword":
       if (method === "POST") {
-        return await blogController.forgotPassword(req, res);
+        return await blogController.forgotPassword(req,res);
       } else {
         res.writeHead(405, { "Content-Type": "text/plain" });
         res.end("405 Method not Found");

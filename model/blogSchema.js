@@ -3,23 +3,22 @@ const mongoose = require("mongoose");
 // const role = ["admin", "user"];
 const blogSchema = mongoose.Schema(
   {
-    fname: {
+    name: {
       type: String,
       required: [true, "Name must require"],
-      // trim: true,
+       trim: true,
     },
     lname: {
       type: String,
-      // required: [true, "last name must require"],
-      // trim: true,
     },
     email: {
       type: String,
-      required: [true, "mail is must "],
-      // trim: true,
+      required: [true, "Mail must required "],
+       trim: true,
     },
     password: {
       type: String,
+      trim: true,
     },
     phoneNo: {
       type: String,
@@ -27,7 +26,7 @@ const blogSchema = mongoose.Schema(
     role: {
       type: Number,
       default:0,  // 0 -> Normal user , 1 -> Admin ,  2 -> sub - Admin 
-      // require:true
+      
     },
 
     isVerify: {
