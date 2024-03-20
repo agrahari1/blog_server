@@ -1,8 +1,10 @@
-const permissionControl = require("../../model/permissinSchema");
+const permissionControl = require("../../model/permissinCategorySchema");
 const Joi = require("joi");
 const jwt = require("jsonwebtoken");
 const userModel = require("../../model/blogSchema");
 
+
+//Create Permission
 async function addPermission(req, res) {
   try {
     const token = req.headers.authorization;
@@ -13,36 +15,17 @@ async function addPermission(req, res) {
 
     const decoded = jwt.verify(token, "your-secret-key");
     if (!decoded) {
-      // res.writeHead(400,{
-      //   "Content-Type": "application/json",
-      //   "Access-Control-Allow-Origin": "*", // REQUIRED CORS HEADER
-      //   "Access-Control-Allow-Headers":
-      //     "Origin, X-Requested-With, Content-Type, Accept", // REQUIRED CORS HEADER
-      // });
       res.statusCode = 400
       res.end("please enter valid token");
     }
     //req.user = decoded.userId;
     const user = await userModel.findById({ _id: decoded.userId });
     if (!user) {
-      // res.writeHead(400,{
-      //   "Content-Type": "application/json",
-      //   "Access-Control-Allow-Origin": "*", // REQUIRED CORS HEADER
-      //   "Access-Control-Allow-Headers":
-      //     "Origin, X-Requested-With, Content-Type, Accept", // REQUIRED CORS HEADER
-      // });
       res.statusCode = 400
       res.end("user not found");
     }
 
-    if (user.role != 1) {
-      // not equal to admin
-      // res.writeHead(400, {
-      //   "Content-Type": "application/json",
-      //   "Access-Control-Allow-Origin": "*", // REQUIRED CORS HEADER
-      //   "Access-Control-Allow-Headers":
-      //     "Origin, X-Requested-With, Content-Type, Accept", // REQUIRED CORS HEADER
-      // });
+    if (user.role != "admin") {
       res.statusCode = 400
       res.end(
         JSON.stringify({
@@ -59,12 +42,6 @@ async function addPermission(req, res) {
 
       const { error } = permissionSchema.validate(req.body);
       if (error) {
-        // res.writeHead(400, {
-        //   "Content-Type": "application/json",
-        //   "Access-Control-Allow-Origin": "*", // REQUIRED CORS HEADER
-        //   "Access-Control-Allow-Headers":
-        //     "Origin, X-Requested-With, Content-Type, Accept", // REQUIRED CORS HEADER
-        // });
         res.statusCode = 400
         res.end(error.details[0].message);
         //   console.log(error);
@@ -73,12 +50,6 @@ async function addPermission(req, res) {
 
       const isExist = await permissionControl.findOne({ permission_name });
       if (isExist) {
-        // res.writeHead(400, {
-        //   "Content-Type": "application/json",
-        //   "Access-Control-Allow-Origin": "*", // REQUIRED CORS HEADER
-        //   "Access-Control-Allow-Headers":
-        //     "Origin, X-Requested-With, Content-Type, Accept", // REQUIRED CORS HEADER
-        // });
         res.statusCode = 400
         res.end("Permission name is already exists !");
       } else {
@@ -91,12 +62,6 @@ async function addPermission(req, res) {
         }
 
         const newPermission = await new permissionControl(obj).save();
-        // res.writeHead(200, {
-        //   "Content-Type": "application/json",
-        //   "Access-Control-Allow-Origin": "*", // REQUIRED CORS HEADER
-        //   "Access-Control-Allow-Headers":
-        //     "Origin, X-Requested-With, Content-Type, Accept", // REQUIRED CORS HEADER
-        // });
         res.statusCode = 200
         res.end(
           JSON.stringify({
@@ -109,12 +74,6 @@ async function addPermission(req, res) {
     }
   } catch (error) {
     console.error(error);
-    // res.writeHead(500,{
-    //   "Content-Type": "application/json",
-    //   "Access-Control-Allow-Origin": "*", // REQUIRED CORS HEADER
-    //   "Access-Control-Allow-Headers":
-    //     "Origin, X-Requested-With, Content-Type, Accept", // REQUIRED CORS HEADER
-    // });
     res.statusCode = 500
     res.end("Internal Server Error");
   }
@@ -127,23 +86,11 @@ async function getProfile(req, res) {
   try {
     const token = req.headers.authorization;
     if (!token) {
-      // res.writeHead(400,{
-      //   "Content-Type": "application/json",
-      //   "Access-Control-Allow-Origin": "*", // REQUIRED CORS HEADER
-      //   "Access-Control-Allow-Headers":
-      //     "Origin, X-Requested-With, Content-Type, Accept", // REQUIRED CORS HEADER
-      // });
       res.statusCode = 400
       res.end(`please enter token`);
     }
     const decoded = jwt.verify(token, "your-secret-key");
     if (!decoded) {
-      // res.writeHead(400,{
-      //   "Content-Type": "application/json",
-      //   "Access-Control-Allow-Origin": "*", // REQUIRED CORS HEADER
-      //   "Access-Control-Allow-Headers":
-      //     "Origin, X-Requested-With, Content-Type, Accept", // REQUIRED CORS HEADER
-      // });
       res.statusCode = 400
       res.end(`please enter valid token`);
     }
@@ -153,22 +100,10 @@ async function getProfile(req, res) {
     const user = await userModel.findById({ _id: decoded.userId });
 
     if (!user) {
-      // res.writeHead(400,{
-      //   "Content-Type": "application/json",
-      //   "Access-Control-Allow-Origin": "*", // REQUIRED CORS HEADER
-      //   "Access-Control-Allow-Headers":
-      //     "Origin, X-Requested-With, Content-Type, Accept", // REQUIRED CORS HEADER
-      // });
+     
       res.statusCode = 400
       res.end(`user is not found`);
     }
-
-    // res.writeHead(200, {
-    //   "Content-Type": "application/json",
-    //   "Access-Control-Allow-Origin": "*", // REQUIRED CORS HEADER
-    //   "Access-Control-Allow-Headers":
-    //     "Origin, X-Requested-With, Content-Type, Accept", // REQUIRED CORS HEADER
-    // });
     res.statusCode = 200
     res.end(
       JSON.stringify({
@@ -178,12 +113,6 @@ async function getProfile(req, res) {
     );
   } catch (error) {
     console.error(error);
-    // res.writeHead(500,{
-    //   "Content-Type": "application/json",
-    //   "Access-Control-Allow-Origin": "*", // REQUIRED CORS HEADER
-    //   "Access-Control-Allow-Headers":
-    //     "Origin, X-Requested-With, Content-Type, Accept", // REQUIRED CORS HEADER
-    // });
     res.statusCode = 500
     res.end("Internal Server Error");
   }

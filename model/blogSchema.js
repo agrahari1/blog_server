@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 // const { admin } = require("../controller/categoryController");
-// const role = ["admin", "user"];
+//const role = ["admin", "user"];
 const blogSchema = mongoose.Schema(
   {
     name: {
@@ -24,8 +24,8 @@ const blogSchema = mongoose.Schema(
       type: String,
     },
     role: {
-      type: Number,
-      default:0,  // 0 -> Normal user , 1 -> Admin ,  2 -> sub - Admin 
+      type:String,
+      default:'user',  // 0 -> Normal user , 1 -> Admin ,  2 -> sub - Admin 
       
     },
 

@@ -5,17 +5,18 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const { sendOTP } = require("../Utils/sendOtp");
 const header = require("../Utils/header");
-// const sendOTP = require("../Utils/sendOtp.js");
+
 
 //SIGNUP
 
 async function signup(req, res) {
   try {
+    
     const { name, email, password } = req.body;
 
     const schema = Joi.object({
       name: Joi.string().alphanum().max(30).required("Name is required"),
-      email: Joi.string().required().email().required("Email is required"),
+      email: Joi.string().email().required("Email is required"),
       password: Joi.string()
         .pattern(new RegExp("^[a-zA-Z0-9]{3,30}$"))
         .required("Password is required"),
@@ -76,6 +77,8 @@ async function signup(req, res) {
 
 async function login(req, res) {
   try {
+
+    
     const { email, password } = req.body;
 
     const loginSchema = Joi.object({
@@ -229,34 +232,38 @@ async function resend_otp(req, res) {
       );
     }
 
-    const findEmail = await userModel.findOne({ email });
+    const existingUser = await userModel.findOne({ email });
 
-    if (!findEmail) {
+    if (!existingUser) {
       res.writeHead(400, header);
       return res.end(
         JSON.stringify({
           success: false,
-          message: "Email is not registered",
+          message: "User is not found",
         })
       );
     }
+    const otp = Math.floor(100000 + Math.random() * 900000);
+    await sendOTP(email, otp);
+    const findOTP = await OtpModel.findOne({email,
+     // isExpired: { $gte: Date.now() }
+    })
+    // const findOtp = await OtpModel.findOne({
+    //   existingUser,
+    //     isExpired: { $gte: Date.now() },
+    // });
 
-    const findOtp = await OtpModel.findOne({
-      email,
-      isExpired: { $gte: Date.now() },
-    });
-
-    if (findOtp) {
+    if (findOTP) {
       res.writeHead(400, header);
       return res.end({
         success: false,
         message: "Otp already sent  please try after two minutes",
       });
     }
-    const otp = Math.floor(100000 + Math.random() * 900000);
+   
     console.log(otp);
-    await new OtpModel({ email, otp }).save();
-    await sendOTP(email, otp);
+     await new OtpModel({ email, otp }).save();
+    // await sendOTP(email, otp);
     res.writeHead(200, header);
     return res.end(
       JSON.stringify({
@@ -281,7 +288,7 @@ async function forgotPassword(req, res) {
   try {
     const { email } = req.body;
     const forgotPasswordSchema = Joi.object({
-      email: Joi.string().email().required('Email must required'),
+      email: Joi.string().email().required("Email must required"),
     });
 
     const { errr } = forgotPasswordSchema.validate(req.body);
@@ -295,7 +302,7 @@ async function forgotPassword(req, res) {
         })
       );
     }
-    const findEmail = await userModel.findOne({email});
+    const findEmail = await userModel.findOne({ email });
     if (!findEmail) {
       res.writeHead(400, header);
       return res.end(
@@ -304,18 +311,20 @@ async function forgotPassword(req, res) {
           message: "Email is not register",
         })
       );
+    } else {
+      const otp = Math.floor(100000 + Math.random() * 900000);
+      await new OtpModel({ email, otp }).save();
+      await sendOTP(email, otp);
+      await OtpModel.findOneAndUpdate({ email, otp: otp });
+      //await OtpModel.findByIdAndUpdate(findEmail._id, { otp: otp });
+      res.writeHead(200, header);
+      return res.end(
+        JSON.stringify({
+          success: true,
+          message: " OTP sent to mail",
+        })
+      );
     }
-    const otp = Math.floor(100000 + Math.random() * 900000);
-    await sendOTP(email, otp);
-    const data = await OtpModel.findOneAndUpdate({email,otp:otp});
-    //await OtpModel.findByIdAndUpdate(data._id,{otp:otp})
-    res.writeHead(200, header);
-    return res.end(
-      JSON.stringify({
-        success: true,
-        message: " OTP sent to mail",
-      })
-    );
   } catch (err) {
     res.writeHead(500, header);
     return res.end(
@@ -327,17 +336,19 @@ async function forgotPassword(req, res) {
   }
 }
 
-//change password
+//REset password
 
-async function changePassword() {
-  try {
-    const { email, password } = req.body;
+async function resetPassword(req,res) {
+  try {    
+    const { email,password } = req.body;
+    
     const schema = Joi.object({
       email: Joi.string().required().email().required(),
       password: Joi.string()
         .pattern(new RegExp("^[a-zA-Z0-9]{3,30}$"))
         .required(),
     });
+
     const { error } = schema.validate(req.body);
     if (error) {
       res.writeHead(400, header);
@@ -345,18 +356,35 @@ async function changePassword() {
         JSON.stringify({ success: false, message: error.details[0].message })
       );
     }
+ 
     const checkUser = await userModel.findOne({ email });
-
-    if (checkUser) {
+    if(!checkUser){
+      res.writeHead(400, header);
+      res.end(JSON.stringify({
+        success:false,
+        message:"user is not registerd"
+      }))
+    }else {
+    
+      // const newPassword = req.body.password
+     // await userModel.findOneAndUpdate(checkUser._id,{password:newPassword})
+     // const newCheckUser = await userModel.findOne({email})
       const salt = await bcrypt.genSalt(10);
       const hashedPassword = await bcrypt.hash(password, salt);
-      await new userModel({
-        email,
-        password: hashedPassword,
-      }).save();
+      await userModel.findOneAndUpdate({id:checkUser._id},{$set:{password:hashedPassword}})
+      //await data.save()
+      // await new userModel({
+      //   email,
+      //   password: hashedPassword,
+      // }).save();
+      res.writeHead(200,header)
+      res.end(JSON.stringify({
+        success:true,
+        message:"password reset"
+      }))
     }
   } catch (error) {
-    res.writeHead(500, header);
+    res.writeHead(500, header)
     return res.end(
       JSON.stringify({
         success: false,
@@ -365,220 +393,11 @@ async function changePassword() {
     );
   }
 }
-//FORGET PASSWORD VERYFY OTP
-
-// async function forgetPasswordVeryfyOtp(req, res) {
-//   try {
-//     const { email, otp, password } = req.body;
-//     const forgetPasswordVeryfyOtpSchema = Joi.object({
-//       email: Joi.string().required().email(),
-//       otp: Joi.string()
-//         .length(6)
-//         .pattern(/^[0-9]+$/)
-//         .required(),
-//       password: Joi.string()
-//         .required()
-//         .pattern(new RegExp("^[a-zA-Z0-9]{3,30}$")),
-//     });
-
-//     const { error } = forgetPasswordVeryfyOtpSchema.validate(req.bady);
-//     if (error) {
-//       res.writeHead=400;
-//       res.end("Enter the valid input");
-//     }
-//     const findData = await userModel.findOne({ email });
-//     if (!findData) {
-//       res.writeHead=400;
-//       res.end("Email is not register");
-//     }
-//     // console.log("hiii")
-//     const findOtp = await OtpModel.findOne({
-//       email,
-//     });
-//     if (!findOtp) {
-//       res.statusCode = 400;
-//       return res.end(
-//         JSON.stringify({
-//           success: false,
-//           message: "Otp not found or OTP has expired.",
-//         })
-//       );
-//     }
-//     if (findOtp.otp != req.body.otp) {
-//       res.statusCode = 400;
-//       return res.end(
-//         JSON.stringify({ success: false, message: "Invalid otp provided." })
-//       );
-//     }
-//     await userModel.findOneAndUpdate(findData._id, { password: password });
-
-//     const salt = await bcrypt.genSalt(10);
-//     const pass = req.body.password;
-//     const hashedPassword = await bcrypt.hash(pass, salt);
-//     await userModel.findOneAndUpdate(findData._id, {
-//       password: hashedPassword,
-//     });
-//     res.statusCode = 200;
-//     res.end("Password set successful");
-//   } catch (error) {
-//     console.log(error);
-//   }
-// }
-
-// SET PASSWORD
-
-// async function setPassword(req, res) {
-//   try {
-//     const { email, otp, password } = req.body;
-
-//     const setPasswordSchema = Joi.object({
-//       email: Joi.string().required().email(),
-//       otp: Joi.string()
-//         .length(6)
-//         .pattern(/^[0-9]+$/)
-//         .required(),
-//       password: Joi.string()
-//         .required()
-//         .pattern(new RegExp("^[a-zA-Z0-9]{3,30}$")),
-//     });
-
-//     const { error } = setPasswordSchema.validate(req.bady);
-//     if (error) {
-//       res.writeHead(404, { "content-Type": "application/json" });
-//       res.end("Enter the valid input");
-//     }
-
-//     const findData = await userModel.findOne({ email });
-//     // console.log(findData)
-//     if (!findData) {
-//       res.writeHead(404, { "content-Type": "application/json" });
-//       res.end("Email is not register");
-//     }
-//     await sendOTP(email, otp);
-//     const findOtp = await OtpModel.findOne({
-//       email,
-//     });
-//     // console.log(findOtp)
-//     if (!findOtp) {
-//       res.writeHead(400, { "Content-Type": "application/json" });
-//       return res.end(
-//         JSON.stringify({
-//           success: false,
-//           message: "Otp not found or OTP has expired.",
-//         })
-//       );
-//     }
-
-//     if (findOtp.otp != req.body.otp) {
-//       res.writeHead(400, { "Content-Type": "application/json" });
-//       return res.end(
-//         JSON.stringify({ success: false, message: "Invalid otp provided." })
-//       );
-//     }
-
-//     await userModel.findById(findData._id, { password: password });
-
-//     const salt = await bcrypt.genSalt(10);
-//     const pass = req.body.password;
-//     const hashedPassword = await bcrypt.hash(pass, salt);
-//     await userModel.findById(findData._id, {
-//       password: hashedPassword,
-//     });
-//     res.writeHead(200, { "Content-Type": "text/plain" });
-//     res.end("Password set successful");
-//   } catch (error) {
-//     console.error(error);
-//     res.writeHead(400, { "content-Type": "application/json" });
-//     res.end(error);
-//   }
-// }
-
-// async function forgetPasswordChangePassword(req, res) {
-//   try {
-//     const { email, password, conformPassword } = req.body;
-//     const changePasswordSchema = Joi.object({
-//       email: Joi.string().required().email(),
-//       // otp:Joi.string().required(),
-//       password: Joi.string()
-//         .required()
-//         .pattern(new RegExp("^[a-zA-Z0-9]{3,30}$")),
-//       conformPassword: Joi.string()
-//         .required()
-//         .pattern(new RegExp("^[a-zA-Z0-9]{3,30}$")),
-//     });
-
-//     const { error } = changePasswordSchema.validate(req.body);
-//     if (error) {
-//       res.writeHead(404, { "content-Type": "application/json" });
-//       res.end("please enter valide input");
-//     }
-//     const findEmail = await userModel.findOne({ email });
-//     if (!findEmail) {
-//       res.writeHead(404, { "content-Type": "application/json" });
-//       res.end("Email is not register");
-//     }
-
-//     const findOtp = await OtpModel.findOne({
-//       email,
-//       expiredAt: { $gte: Date.now() },
-//     });
-//     if (!findOtp) {
-//       res.writeHead(404, { "content-Type": "application/json" });
-//       res.end("Please try after two minutes");
-//     }
-//     const otp = Math.floor(100000 + Math.random() * 900000);
-//     await new OtpModel({ email, otp }).save();
-//     const transporter = nodemailer.createTransport({
-//       host: "smtp.gmail.com",
-//       port: 587,
-//       secure: false,
-//       auth: {
-//         user: "agrahariprashant1@gmail.com",
-//         pass: "yuhy rpzb fwcw tttm",
-//       },
-//     });
-
-//     const mailOptions = {
-//       from: "agrahariprashant1@gmail.com",
-//       to: "agrahariprashant1@gmail.com",
-//       subject: "Your Email Verification OTP",
-//       html: `<strong>Your OTP for email verification is ${otp}</strong>`,
-//     };
-
-//     const info = await transporter.sendMail(mailOptions);
-//     console.log("Email sent: %s", info.messageId);
-//     res.writeHead(200);
-//     res.end(" OTP  sent successfully");
-
-//     if (findOtp.otp != email.otp) {
-//       res.writeHead(404, { "content-Type": "application/json" });
-//       res.end("please enter valid otp");
-//     }
-//   } catch (err) {
-//     console.log(err);
-//   }
-// }
-
-// async function changePassword(req , res){
-//   try{
-//  const {password ,} = req.body
-//   const changePasswordSchema = Joi.object({
-//     email:Joi.string().required().email(),
-//     password: Joi.string()
-//         .required()
-//         .pattern(new RegExp("^[a-zA-Z0-9]{3,30}$")),
-//   });
-//   const {error} = changePasswordSchema.validate(req.body);
-
-//   if
-
-//   } catch(err){}
-
-//}
 module.exports = {
   signup,
   login,
   verify_otp,
   resend_otp,
   forgotPassword,
+  resetPassword
 };
