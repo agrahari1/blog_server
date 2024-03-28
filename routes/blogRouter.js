@@ -73,7 +73,7 @@ async function handleRoute(req, res) {
  break;
 
  case "/deleteArtical":
- if(method === 'DELETE'){
+ if(method === 'POST'){
   return await articalController.deleteArtical(req,res);
  } else{
   res.writeHead(405, { "Content-Type": "text/plain" });
@@ -90,8 +90,18 @@ async function handleRoute(req, res) {
   }
   break;
 
+  case "/getArticalOne":
+    if(method === 'POST'){
+     return await articalController.getArticalOne(req,res);
+    } else{
+     res.writeHead(405, { "Content-Type": "text/plain" });
+     res.end("405 Method not Found");
+    }
+    break;
+
   case "/updateArtical":
-  if(method === 'PUT'){
+    console.log('kkk')
+  if(method === 'POST'){
    return await articalController.updateArtical(req,res);
   } else{
    res.writeHead(405, { "Content-Type": "text/plain" });

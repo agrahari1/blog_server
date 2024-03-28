@@ -1,10 +1,10 @@
 const mongoose = require("mongoose");
 const blogArticalSchema = mongoose.Schema(
   {
-    auther_id: {
-      type: String,
+  //   auther_id: {
+  //     type: String,
      
-  },
+  // },
   email:{
     type:String,
   },
@@ -13,7 +13,7 @@ const blogArticalSchema = mongoose.Schema(
       require: true,
       // trim: true,
     },
-    Categary: {
+    category: {
       type: String,
       require: true,
     },
@@ -30,6 +30,10 @@ const blogArticalSchema = mongoose.Schema(
       default:Date.now()
     },
     isDeleted:{
+      type:Boolean,
+      default:false
+    },
+    isPublish:{
       type:Boolean,
       default:false
     }

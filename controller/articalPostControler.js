@@ -7,26 +7,26 @@ const jwt = require("jsonwebtoken");
 //CREATE ARTICAL
 async function createArtical(req, res) {
   try {
-    const token = req.headers.authorization;
-    if (!token) {
-      res.writeHead(400, header);
-      return res.end("unauthorized user");
-    }
+    // const token = req.headers.authorization;
+    // if (!token) {
+    //   res.writeHead(400, header);
+    //   return res.end("unauthorized user");
+    // }
 
-    const decoded = jwt.verify(token, "your-secret-key");
+    // const decoded = jwt.verify(token, "your-secret-key");
 
-    if (!decoded) {
-      res.writeHead(400, header);
-      return res.end("unauthorized user");
-    }
-    console.log(decoded);
-    req.user = decoded.userId;
-    const user = await userModel.findById({ _id: decoded.userId });
+    // if (!decoded) {
+    //   res.writeHead(400, header);
+    //   return res.end("unauthorized user");
+    // }
+    // console.log(decoded);
+    // req.user = decoded.userId;
+    // const user = await userModel.findById({ _id: decoded.userId });
     //const user = await userModel.find({ _id:email });
-    if (!user) {
-      res.writeHead(400, header);
-      return res.end("User not exist ");
-    }
+    // if (!user) {
+    //   res.writeHead(400, header);
+    //   return res.end("User not exist ");
+    // }
 
     const article_schema = Joi.object({
       //email: Joi.string().email().required("Email is required"),
@@ -46,12 +46,12 @@ async function createArtical(req, res) {
         );
       return;
     } else {
-      const auther_id = user._id;
+      //const auther_id = user._id;
       //const auther_id = email._id;
-      console.log(auther_id);
-      const data = await new articalModel({ ...req.body, auther_id });
+      //console.log(auther_id);
+      //const data = await new articalModel({ ...req.body, auther_id });
       //const data = await new articalModel({ ...req.body,email });
-      //const data = await new articalModel({ ...req.body });
+      const data = await new articalModel({ ...req.body });
       data.save();
       res.writeHead(201, header);
       res.end(
@@ -75,33 +75,30 @@ async function createArtical(req, res) {
 
 //DELETE ARTICAL
 // Not working
-async function deleteArtical(req,res) { 
+async function deleteArtical(req, res) {
   try {
+    // const token = req.headers.authorization;
+    // if (!token) {
+    //   res.writeHead(400, header);
+    //   res.end("unauthorized user");
+    // }
 
-    const token = req.headers.authorization;
-    if (!token) {
-      res.writeHead(400, header);
-      res.end("unauthorized user");
-    }
+    // const decoded = jwt.verify(token, "your-secret-key");
 
-    const decoded = jwt.verify(token, "your-secret-key");
+    // if (!decoded) {
+    //   res.writeHead(400, header);
+    //   res.end("unauthorized user");
+    // }
 
-    if (!decoded) {
-      res.writeHead(400, header);
-      res.end("unauthorized user");
-    }
+    //console.log(decoded);
+    const { id } = req.body;
+  console.log(id)
+   const data = await articalModel.findById(id );
+  
    
-    console.log(decoded);
-    const { articalId } = req.body;
-    const data = await articalModel.find({ _id: articalId });
-    console.log(data.auther_id);
-    if (!data) {
-      res.writeHead(400, header);
-      res.end("article not exist");
-    }
-    
-    if (data.author_id == decoded.userId) {
-      await articalModel.findOneAndDelete({ _id: articalId });
+      if(data ){
+        console.log(id)
+      await articalModel.findByIdAndDelete( id );
       res.writeHead(200, header);
       res.end(
         JSON.stringify({
@@ -112,13 +109,13 @@ async function deleteArtical(req,res) {
     } else {
       res.writeHead(400, header);
       res.end(
-        JSON({
+        JSON.stringify({
           success: false,
           message: "you have not authority to delete artical",
         })
       );
     }
-    console.log('hiii')
+   // console.log("hiii");
     // if (data.auther_id == decoded.userId) {
     //   if (
     //     await articalModel.findOneAndDelete(
@@ -152,7 +149,8 @@ async function deleteArtical(req,res) {
     //   );
     // }
   } catch (error) {
-    res.writeHead(500, header);
+    console.log(error)
+    res.writeHead(500,header);
     res.end(
       JSON.stringify({
         success: false,
@@ -165,26 +163,31 @@ async function deleteArtical(req,res) {
 // GET ARTICAL
 async function getArtical(req, res) {
   try {
-    const token = req.headers.authorization;
-    if (!token) {
-      res.writeHead(400, header);
-      res.end("unauthorized user");
-    }
+    // const token = req.headers.authorization;
+    // if (!token) {
+    //   res.writeHead(400, header);
+    //   res.end("unauthorized user");
+    // }
 
-    const decoded = jwt.verify(token, "your-secret-key");
+    // const decoded = jwt.verify(token, "your-secret-key");
 
-    if (!decoded) {
-      res.writeHead(400, header);
-      res.end("unauthorized user");
-    }
+    // if (!decoded) {
+    //   res.writeHead(400, header);
+    //   res.end("unauthorized user");
+    // }
 
-    console.log(decoded);
-    const data = await articalModel.find({ auther_id: decoded.userId });
+    // console.log(decoded);
+    //const data = await articalModel.find({ auther_id: decoded.userId });
+    // const {email} = req.body
+
+    const data = await articalModel.find();
     if (data) {
-      res.end(
+      res.writeHead(200, header)
+      return res.end(
         JSON.stringify({
           success: true,
-          message: "data fetch successfully!!",
+          // message: "data fetch successfully!!",
+          data: data,
         })
       );
     } else {
@@ -197,6 +200,7 @@ async function getArtical(req, res) {
       );
     }
   } catch (error) {
+   // console.log("hiii");
     res.writeHead(500, header);
     return res.end(
       JSON.stringify({
@@ -206,42 +210,78 @@ async function getArtical(req, res) {
     );
   }
 }
+
+
+//Get artical one
+
+async function getArticalOne(req,res){
+  try {
+    const {id} = req.body
+    const data = await articalModel.findById(id);
+    console.log(data)
+    if (data) {
+      res.writeHead(200, header)
+      return res.end(
+        JSON.stringify({
+          success: true,
+          // message: "data fetch successfully!!",
+          data: data,
+        })
+      );
+    } else {
+      res.writeHead(400, header);
+      return res.end(
+        JSON.stringify({
+          success: false,
+          message: "Artical not exist !!",
+        })
+      );
+    }
+
+  } catch (error) {
+    console.log(error)
+  }
+}
+
+
 //UPDATE ARTICAL
 
 async function updateArtical(req, res) {
-  
   try {
-    const token = req.headers.authorization;
-    if (!token) {
-      res.writeHead(400, header);
-      res.end("unauthorized user");
-    }
+    // const token = req.headers.authorization;
+    // if (!token) {
+    //   res.writeHead(400, header);
+    //   res.end("unauthorized user");
+    // }
 
-    
-    const decoded = jwt.verify(token, "your-secret-key");
+    // const decoded = jwt.verify(token, "your-secret-key");
 
-    if (!decoded) {
-      res.writeHead(400, header);
-      res.end("unauthorized user");
-    }
+    // if (!decoded) {
+    //   res.writeHead(400, header);
+    //   res.end("unauthorized user");
+    // }
 
-    console.log(decoded);
-    const { id } = req.body;
-    const { title, description, category } = req.body;
-    
+    // console.log(decoded);
+    //const { id } = req.body;
+   
+
+    // const data = await articalModel.updateOne(
+    //   { _id: id },
+    // { $set: { title: title, description: description, category: category } }
+    // );
+    //const { id } = req.body;
+    const {id, title, description, category } = req.body;
     const data = await articalModel.updateOne(
       { _id: id },
-    { $set: { title: title, description: description, category: category } }
+      { $set: { title: title, description: description, category: category } }
     );
-    
     res.writeHead(200, header);
-    res.end(
+    return res.end(
       JSON.stringify({
         success: true,
-        message: { data },
+        message: "update seccessfully"
       })
     );
-    return;
   } catch (error) {
     res.writeHead(500, header);
     return res.end(
@@ -252,4 +292,4 @@ async function updateArtical(req, res) {
     );
   }
 }
-module.exports = { createArtical, deleteArtical, getArtical, updateArtical };
+module.exports = { createArtical, deleteArtical, getArtical, updateArtical,getArticalOne };
