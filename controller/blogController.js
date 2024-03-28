@@ -132,15 +132,15 @@ async function login(req, res) {
       expiresIn: "1h",
     });
     //doute  upper
-
-    const userData = [{ user }, { token }];
+;
 
     res.writeHead(200, header);
     return res.end(
       JSON.stringify({
         success: true,
         message: "Login Successfully!",
-        data: userData,
+        data: user,
+        token
       })
     );
   } catch (err) {
@@ -343,7 +343,7 @@ async function resetPassword(req,res) {
     const { email,password } = req.body;
     
     const schema = Joi.object({
-      email: Joi.string().required().email().required(),
+      email: Joi.string().required().email(),
       password: Joi.string()
         .pattern(new RegExp("^[a-zA-Z0-9]{3,30}$"))
         .required(),

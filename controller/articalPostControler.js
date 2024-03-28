@@ -1,5 +1,5 @@
 const header = require("../Utils/header");
-const articalModel = require("../model/articleModle");
+const articalModel = require("../model/articelModle");
 const userModel = require("../model/blogSchema");
 const Joi = require("joi");
 const jwt = require("jsonwebtoken");
@@ -92,13 +92,11 @@ async function deleteArtical(req, res) {
 
     //console.log(decoded);
     const { id } = req.body;
-  console.log(id)
-   const data = await articalModel.findById(id );
-  
-   
-      if(data ){
-        console.log(id)
-      await articalModel.findByIdAndDelete( id );
+
+    const data = await articalModel.findById(id);
+
+    if (data) {
+      await articalModel.findByIdAndDelete(id);
       res.writeHead(200, header);
       res.end(
         JSON.stringify({
@@ -115,7 +113,7 @@ async function deleteArtical(req, res) {
         })
       );
     }
-   // console.log("hiii");
+    // console.log("hiii");
     // if (data.auther_id == decoded.userId) {
     //   if (
     //     await articalModel.findOneAndDelete(
@@ -149,8 +147,8 @@ async function deleteArtical(req, res) {
     //   );
     // }
   } catch (error) {
-    console.log(error)
-    res.writeHead(500,header);
+    console.log(error);
+    res.writeHead(500, header);
     res.end(
       JSON.stringify({
         success: false,
@@ -180,9 +178,10 @@ async function getArtical(req, res) {
     //const data = await articalModel.find({ auther_id: decoded.userId });
     // const {email} = req.body
 
-    const data = await articalModel.find();
+    const data = await articalModel.find({isPublish:false}).sort({
+      updatedAt:-1});
     if (data) {
-      res.writeHead(200, header)
+      res.writeHead(200, header);
       return res.end(
         JSON.stringify({
           success: true,
@@ -200,7 +199,7 @@ async function getArtical(req, res) {
       );
     }
   } catch (error) {
-   // console.log("hiii");
+    // console.log("hiii");
     res.writeHead(500, header);
     return res.end(
       JSON.stringify({
@@ -211,16 +210,15 @@ async function getArtical(req, res) {
   }
 }
 
-
 //Get artical one
 
-async function getArticalOne(req,res){
+async function getArticalOne(req, res) {
   try {
-    const {id} = req.body
+    const { id } = req.body;
     const data = await articalModel.findById(id);
-    console.log(data)
+    console.log(data);
     if (data) {
-      res.writeHead(200, header)
+      res.writeHead(200, header);
       return res.end(
         JSON.stringify({
           success: true,
@@ -237,12 +235,10 @@ async function getArticalOne(req,res){
         })
       );
     }
-
   } catch (error) {
-    console.log(error)
+    console.log(error);
   }
 }
-
 
 //UPDATE ARTICAL
 
@@ -263,14 +259,13 @@ async function updateArtical(req, res) {
 
     // console.log(decoded);
     //const { id } = req.body;
-   
 
     // const data = await articalModel.updateOne(
     //   { _id: id },
     // { $set: { title: title, description: description, category: category } }
     // );
     //const { id } = req.body;
-    const {id, title, description, category } = req.body;
+    const { id, title, description, category } = req.body;
     const data = await articalModel.updateOne(
       { _id: id },
       { $set: { title: title, description: description, category: category } }
@@ -279,7 +274,7 @@ async function updateArtical(req, res) {
     return res.end(
       JSON.stringify({
         success: true,
-        message: "update seccessfully"
+        message: "update seccessfully",
       })
     );
   } catch (error) {
@@ -292,4 +287,64 @@ async function updateArtical(req, res) {
     );
   }
 }
-module.exports = { createArtical, deleteArtical, getArtical, updateArtical,getArticalOne };
+//Publish Blog
+async function publishBlog(req,res){ 
+  try {
+   const {id} = req.body
+    await articalModel.findByIdAndUpdate(id,{$set:{isPublish:true}})
+    res.writeHead(200,header);
+    return res.end(JSON.stringify({
+      success:true,
+      message:"Publish Blog successfully !!"
+    }))
+  } catch (error) {
+    res.writeHead(500, header);
+    return res.end(
+      JSON.stringify({
+        success: false,
+        message: error.message,
+      })
+    );
+  }
+}
+//Get Publish blog
+async function getBlogPost(req,res){
+  try {
+    const data = await articalModel.find({isPublish:true}).sort({updatedAt:-1});
+    if (data) {
+      res.writeHead(200, header);
+      return res.end(
+        JSON.stringify({
+          success: true,
+          // message: "data fetch successfully!!",
+          data: data,
+        })
+      );
+    } else {
+      res.writeHead(400, header);
+      return res.end(
+        JSON.stringify({
+          success: false,
+          message: "Blog not exist !!",
+        })
+      );
+    }
+  } catch (error) {
+    res.writeHead(500, header);
+    return res.end(
+      JSON.stringify({
+        success: false,
+        message: error.message,
+      })
+    );
+  }
+}
+module.exports = {
+  createArtical,
+  deleteArtical,
+  getArtical,
+  updateArtical,
+  getArticalOne,
+  publishBlog,
+  getBlogPost
+};

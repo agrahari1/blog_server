@@ -61,8 +61,24 @@ async function handleRoute(req, res) {
       }
       break;
 
-//ARTICAL POST
+//Blog POST
+case "/publishBlog":
+  if(method ==='POST'){
+    return await articalController.publishBlog(req,res);
+  } else{
+    res.writeHead(405, { "Content-Type": "text/plain" });
+    res.end("405 Method not Found");
+   }
+   break;
 
+   //Get Blog Post
+  case "/getBlogPost":
+    if(method ==='GET'){
+      return await articalController.getBlogPost(req,res);
+    } else{
+      res.writeHead(405, { "Content-Type": "text/plain" });
+    res.end("405 Method not Found");
+    }
  case "/createArtical":
  if(method === 'POST'){
   return await articalController.createArtical(req,res);
