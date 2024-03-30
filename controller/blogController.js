@@ -6,12 +6,10 @@ const jwt = require("jsonwebtoken");
 const { sendOTP } = require("../Utils/sendOtp");
 const header = require("../Utils/header");
 
-
 //SIGNUP
 
 async function signup(req, res) {
   try {
-    
     const { name, email, password } = req.body;
 
     const schema = Joi.object({
@@ -77,10 +75,7 @@ async function signup(req, res) {
 
 async function login(req, res) {
   try {
-
-    
     const { email, password } = req.body;
-
     const loginSchema = Joi.object({
       email: Joi.string().required().email(),
 
@@ -132,15 +127,13 @@ async function login(req, res) {
       expiresIn: "1h",
     });
     //doute  upper
-;
-
     res.writeHead(200, header);
     return res.end(
       JSON.stringify({
         success: true,
         message: "Login Successfully!",
         data: user,
-        token
+        token,
       })
     );
   } catch (err) {
@@ -162,10 +155,8 @@ async function verify_otp(req, res) {
         .required(),
     });
     const { error } = emailSchema.validate(req.body);
-    //console.log(error?.details[0].message)
     if (error) {
       res.writeHead(400, header);
-      // console.log(error?.details[0].message);
       return res.end(
         JSON.stringify({
           success: false,
@@ -245,9 +236,10 @@ async function resend_otp(req, res) {
     }
     const otp = Math.floor(100000 + Math.random() * 900000);
     await sendOTP(email, otp);
-    const findOTP = await OtpModel.findOne({email,
-     // isExpired: { $gte: Date.now() }
-    })
+    const findOTP = await OtpModel.findOne({
+      email,
+      // isExpired: { $gte: Date.now() }
+    });
     // const findOtp = await OtpModel.findOne({
     //   existingUser,
     //     isExpired: { $gte: Date.now() },
@@ -260,9 +252,9 @@ async function resend_otp(req, res) {
         message: "Otp already sent  please try after two minutes",
       });
     }
-   
+
     console.log(otp);
-     await new OtpModel({ email, otp }).save();
+    await new OtpModel({ email, otp }).save();
     // await sendOTP(email, otp);
     res.writeHead(200, header);
     return res.end(
@@ -338,10 +330,10 @@ async function forgotPassword(req, res) {
 
 //REset password
 
-async function resetPassword(req,res) {
-  try {    
-    const { email,password } = req.body;
-    
+async function resetPassword(req, res) {
+  try {
+    const { email, password } = req.body;
+
     const schema = Joi.object({
       email: Joi.string().required().email(),
       password: Joi.string()
@@ -356,35 +348,41 @@ async function resetPassword(req,res) {
         JSON.stringify({ success: false, message: error.details[0].message })
       );
     }
- 
+
     const checkUser = await userModel.findOne({ email });
-    if(!checkUser){
+    if (!checkUser) {
       res.writeHead(400, header);
-      res.end(JSON.stringify({
-        success:false,
-        message:"user is not registerd"
-      }))
-    }else {
-    
+      res.end(
+        JSON.stringify({
+          success: false,
+          message: "user is not registerd",
+        })
+      );
+    } else {
       // const newPassword = req.body.password
-     // await userModel.findOneAndUpdate(checkUser._id,{password:newPassword})
-     // const newCheckUser = await userModel.findOne({email})
+      // await userModel.findOneAndUpdate(checkUser._id,{password:newPassword})
+      // const newCheckUser = await userModel.findOne({email})
       const salt = await bcrypt.genSalt(10);
       const hashedPassword = await bcrypt.hash(password, salt);
-      await userModel.findOneAndUpdate({id:checkUser._id},{$set:{password:hashedPassword}})
+      await userModel.findOneAndUpdate(
+        { id: checkUser._id },
+        { $set: { password: hashedPassword } }
+      );
       //await data.save()
       // await new userModel({
       //   email,
       //   password: hashedPassword,
       // }).save();
-      res.writeHead(200,header)
-      res.end(JSON.stringify({
-        success:true,
-        message:"password reset"
-      }))
+      res.writeHead(200, header);
+      res.end(
+        JSON.stringify({
+          success: true,
+          message: "password reset",
+        })
+      );
     }
   } catch (error) {
-    res.writeHead(500, header)
+    res.writeHead(500, header);
     return res.end(
       JSON.stringify({
         success: false,
@@ -399,5 +397,5 @@ module.exports = {
   verify_otp,
   resend_otp,
   forgotPassword,
-  resetPassword
+  resetPassword,
 };
