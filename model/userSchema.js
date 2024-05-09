@@ -1,20 +1,18 @@
 const mongoose = require("mongoose");
-// const { admin } = require("../controller/categoryController");
-//const role = ["admin", "user"];
 const blogSchema = mongoose.Schema(
   {
     name: {
       type: String,
       required: [true, "Name must require"],
-       trim: true,
+      trim: true,
     },
     lname: {
       type: String,
     },
     email: {
       type: String,
-      required: [true, "Mail must required "],
-       trim: true,
+      required: [true],
+      trim: true,
     },
     password: {
       type: String,
@@ -24,9 +22,8 @@ const blogSchema = mongoose.Schema(
       type: String,
     },
     role: {
-      type:String,
-      default:'user',  // 0 -> Normal user , 1 -> Admin ,  2 -> sub - Admin 
-      
+      type: String,
+      default: "user",
     },
 
     isVerify: {

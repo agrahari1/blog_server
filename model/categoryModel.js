@@ -9,20 +9,21 @@ const categorySchema = mongoose.Schema(
     Category: {
       type: String,
       require: true,
-      unique:true
+      unique: true,
     },
-    data:{
-      type:Date,
-      default:Date.now
+    data: {
+      type: Date,
+      default: Date.now,
     },
-    isDeleted:{
-      type:Boolean,
-      default:false
+    isDeleted: {
+      type: Boolean,
+      default: false,
     },
-    
-  },{
+  },
+  {
     timestamps: true,
-  });
+  }
+);
 
 const Category = new mongoose.model("Category", categorySchema);
-module.exports = {Category};
+module.exports = { Category };

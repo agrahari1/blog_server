@@ -10,7 +10,7 @@ connectDB();
 
 server.on("request", function (req, res) {
   console.log(`METHOD:${req.method};URL:${res.url}`);
- 
+
   switch (req.method) {
     case "GET":
     case "PUT":

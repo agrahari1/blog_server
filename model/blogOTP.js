@@ -11,9 +11,9 @@ const blogOTPSchema = mongoose.Schema(
       type: Number,
       // default: true,
     },
-    isExpired:{
-      type:Boolean,
-      default:false
+    isExpired: {
+      type: Boolean,
+      default: false,
     },
     expiredAt: {
       type: Date,
@@ -27,5 +27,3 @@ const blogOTPSchema = mongoose.Schema(
 
 const Otp = new mongoose.model("otp", blogOTPSchema);
 module.exports = Otp;
-
-

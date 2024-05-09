@@ -1,23 +1,21 @@
-const blogController = require("../controller/blogController");
-const perController = require("../controller/admin/permissionController");
-const catController = require("../controller/categoryControler");
-const articalController = require("../controller/articalPostControler");
+const blogController = require("../controller/userController");
+const articalController = require("../controller/blogPostControler");
 
 async function handleRoute(req, res) {
   const { method, url } = req;
   console.log("url", url);
   switch (url) {
+    //SIGNUP
     case "/signup":
       if (method === "POST") {
         return await blogController.signup(req, res);
-       
       } else {
         res.writeHead(405, { "Content-Type": "text/plain" });
         res.end("405 Method not allowed");
       }
-      
-      break;
 
+      break;
+    //LOGIN
     case "/login":
       if (method === "POST") {
         return await blogController.login(req, res);
@@ -26,7 +24,7 @@ async function handleRoute(req, res) {
         res.end("405 Method not allowed");
       }
       break;
-
+    //VERIFY
     case "/verify_otp":
       if (method === "POST") {
         return await blogController.verify_otp(req, res);
@@ -43,89 +41,101 @@ async function handleRoute(req, res) {
         res.end("405 Method not Found");
       }
       break;
-
+    //FORGER PASSWORD
     case "/forgotPassword":
       if (method === "POST") {
-        return await blogController.forgotPassword(req,res);
+        return await blogController.forgotPassword(req, res);
       } else {
         res.writeHead(405, { "Content-Type": "text/plain" });
         res.end("405 Method not Found");
       }
       break;
+    //RESET PASSWORD
     case "/resetPassword":
       if (method === "POST") {
-        return await blogController.resetPassword(req,res);
+        return await blogController.resetPassword(req, res);
       } else {
         res.writeHead(405, { "Content-Type": "text/plain" });
         res.end("405 Method not Found");
       }
       break;
 
-//Blog POST
-case "/publishBlog":
-  if(method ==='POST'){
-    return await articalController.publishBlog(req,res);
-  } else{
-    res.writeHead(405, { "Content-Type": "text/plain" });
-    res.end("405 Method not Found");
-   }
-   break;
+    //Blog POST
+    case "/publishBlog":
+      if (method === "POST") {
+        return await articalController.publishBlog(req, res);
+      } else {
+        res.writeHead(405, { "Content-Type": "text/plain" });
+        res.end("405 Method not Found");
+      }
+      break;
 
-   //Get Blog Post
-  case "/getBlogPost":
-    if(method ==='GET'){
-      return await articalController.getBlogPost(req,res);
-    } else{
-      res.writeHead(405, { "Content-Type": "text/plain" });
-    res.end("405 Method not Found");
-    }
- case "/createArtical":
- if(method === 'POST'){
-  return await articalController.createArtical(req,res);
- } else{
-  res.writeHead(405, { "Content-Type": "text/plain" });
-  res.end("405 Method not Found");
- }
- break;
+    //Get Blog Post
+    case "/getBlogPost":
+      if (method === "GET") {
+        return await articalController.getBlogPost(req, res);
+      } else {
+        res.writeHead(405, { "Content-Type": "text/plain" });
+        res.end("405 Method not Found");
+      }
+    //CREATE BLOG
+    case "/createBlog":
+      if (method === "POST") {
+        return await articalController.createBlog(req, res);
+      } else {
+        res.writeHead(405, { "Content-Type": "text/plain" });
+        res.end("405 Method not Found");
+      }
+      break;
+    //DELETE ARTICAL
+    case "/deleteBlog":
+      if (method === "POST") {
+        return await articalController.deleteBlog(req, res);
+      } else {
+        res.writeHead(405, { "Content-Type": "text/plain" });
+        res.end("405 Method not Found");
+      }
+      break;
+    //GET DRAFT BLOG
+    case "/draftGetBlog":
+      if (method === "POST") {
+        return await articalController.draftGetBlog(req, res);
+      } else {
+        res.writeHead(405, { "Content-Type": "text/plain" });
+        res.end("405 Method not Found");
+      }
+      break;
 
- case "/deleteArtical":
- if(method === 'POST'){
-  return await articalController.deleteArtical(req,res);
- } else{
-  res.writeHead(405, { "Content-Type": "text/plain" });
-  res.end("405 Method not Found");
- }
- break;
+    //GET ALL BLOG
+    case "/allBlogGet":
+      if (method === "GET") {
+        return await articalController.allBlogGet(req, res);
+      } else {
+        res.writeHead(405, { "Content-Type": "text/plain" });
+        res.end("405 Method not Found");
+      }
+      break;
+    //GET BLOG ONE
+    case "/getBlogOne":
+      if (method === "POST") {
+        return await articalController.getBlogOne(req, res);
+      } else {
+        res.writeHead(405, { "Content-Type": "text/plain" });
+        res.end("405 Method not Found");
+      }
+      break;
 
- case "/getArtical":
-  if(method === 'GET'){
-   return await articalController.getArtical(req,res);
-  } else{
-   res.writeHead(405, { "Content-Type": "text/plain" });
-   res.end("405 Method not Found");
-  }
-  break;
+    //UPDATE Blog
+    case "/updateBlog":
+      if (method === "POST") {
+        return await articalController.updateBlog(req, res);
+      } else {
+        res.writeHead(405, { "Content-Type": "text/plain" });
+        res.end("405 Method not Found");
+      }
+      break;
 
-  case "/getArticalOne":
-    if(method === 'POST'){
-     return await articalController.getArticalOne(req,res);
-    } else{
-     res.writeHead(405, { "Content-Type": "text/plain" });
-     res.end("405 Method not Found");
-    }
-    break;
-
-  case "/updateArtical":
-    console.log('kkk')
-  if(method === 'POST'){
-   return await articalController.updateArtical(req,res);
-  } else{
-   res.writeHead(405, { "Content-Type": "text/plain" });
-   res.end("405 Method not Found");
-  }
-  break;
-
-   // permission routes
+    // permission routes
     case "/adminAddPermission":
       if (method === "POST") {
         return await perController.addPermission(req, res);
@@ -134,6 +144,7 @@ case "/publishBlog":
         res.end("405 Method not Found");
       }
       break;
+    //PROFILE
     case "/profile":
       if (method === "GET") {
         return await perController.getProfile(req, res);
@@ -142,6 +153,7 @@ case "/publishBlog":
         res.end("405 Method not Found");
       }
       break;
+    //GET PERMISSION
     case "/get-permissions":
       if (method === "GET") {
         return await perController.getPermissions(req, res);
@@ -150,6 +162,7 @@ case "/publishBlog":
         res.end("405 Method not Found");
       }
       break;
+    //DELETE -PERMISSION
     case "/delete-permission":
       if (method === "POST") {
         return await perController.deletePermission(req, res);
@@ -158,7 +171,7 @@ case "/publishBlog":
         res.end("405 Method not Found");
       }
       break;
-
+    //UPDATE PERMISSION
     case "/update-permission":
       if (method === "POST") {
         return await perController.updatePermission(req, res);
@@ -168,6 +181,7 @@ case "/publishBlog":
       }
       break;
 
+    //ADD CATOGRY
     case "/add-catogry":
       if (method === "POST") {
         return await catController.addCategory(req, res);
@@ -176,9 +190,6 @@ case "/publishBlog":
         res.end("405 Method not Found");
       }
       break;
-    case "add-post":
-      if (method === "POST") {
-      }
 
     default:
     // throw new Error('404 Not Found');

@@ -1,4 +1,4 @@
-const userModel = require("../model/blogSchema");
+const userModel = require("../model/userSchema");
 const OtpModel = require("../model/blogOTP");
 const Joi = require("joi");
 const bcrypt = require("bcryptjs");
@@ -55,7 +55,7 @@ async function signup(req, res) {
       res.end(
         JSON.stringify({
           success: true,
-          message: "signup success ful otp sent on email",
+          message: "signup success ful otp sent to your email, Please Check !",
         })
       );
       return;
@@ -122,17 +122,26 @@ async function login(req, res) {
       );
     }
 
-    //doute
     const token = jwt.sign({ userId: user._id }, "your-secret-key", {
       expiresIn: "1h",
     });
-    //doute  upper
+    const decoded = jwt.verify(token, "your-secret-key");
+    if (!decoded) {
+      res.writeHead(400, header);
+      return res.end("unauthorized user");
+    }
+
+    // console.log(decoded.userId, "decoded");
+    //console.log(token, "token");
+
     res.writeHead(200, header);
     return res.end(
       JSON.stringify({
         success: true,
         message: "Login Successfully!",
         data: user,
+        decoded: decoded,
+        // userid: decoded.userId,
         token,
       })
     );
@@ -154,6 +163,7 @@ async function verify_otp(req, res) {
         .pattern(/^[0-9]+$/)
         .required(),
     });
+
     const { error } = emailSchema.validate(req.body);
     if (error) {
       res.writeHead(400, header);
@@ -169,7 +179,7 @@ async function verify_otp(req, res) {
       email,
       // isExpired: { $lt: Date.now() },
     });
-
+    console.log(findOtp);
     if (!findOtp) {
       res.writeHead(400, header);
       return res.end(
@@ -264,7 +274,7 @@ async function resend_otp(req, res) {
       })
     );
   } catch (err) {
-    res.writeHead(500, header);
+    // res.writeHead(500, header);
     return res.end(
       JSON.stringify({
         success: false,
@@ -364,20 +374,20 @@ async function resetPassword(req, res) {
       // const newCheckUser = await userModel.findOne({email})
       const salt = await bcrypt.genSalt(10);
       const hashedPassword = await bcrypt.hash(password, salt);
-      await userModel.findOneAndUpdate(
-        { id: checkUser._id },
-        { $set: { password: hashedPassword } }
-      );
-      //await data.save()
-      // await new userModel({
-      //   email,
-      //   password: hashedPassword,
-      // }).save();
+      console.log(hashedPassword);
+      await userModel.findOneAndUpdate(checkUser._id, {
+        password: hashedPassword,
+      });
+      // await userModel.findOneAndUpdate(
+      //   { id: checkUser._id },
+      //   { $set: { password: hashedPassword } }
+      // );
+
       res.writeHead(200, header);
       res.end(
         JSON.stringify({
           success: true,
-          message: "password reset",
+          message: "Password reset successful",
         })
       );
     }

@@ -1,10 +1,9 @@
 const mongoose = require("mongoose");
-const blogArticalSchema = mongoose.Schema(
+const blogSchema = mongoose.Schema(
   {
-    //   auther_id: {
-    //     type: String,
-
-    // },
+    userId: {
+      type: String,
+    },
     email: {
       type: String,
     },
@@ -17,7 +16,7 @@ const blogArticalSchema = mongoose.Schema(
       type: String,
       require: true,
     },
-    image: {
+    token: {
       type: String,
     },
     description: {
@@ -25,10 +24,10 @@ const blogArticalSchema = mongoose.Schema(
       require: true,
       trim: true,
     },
-    date: {
-      type: Date,
-      default: Date.now(),
-    },
+    // date: {
+    //   type: Date,
+    //   default: Date.now(),
+    // },
     isDeleted: {
       type: Boolean,
       default: false,
@@ -46,5 +45,5 @@ const blogArticalSchema = mongoose.Schema(
   }
 );
 
-const articlPosts = new mongoose.model("articlPosts", blogArticalSchema);
-module.exports = articlPosts;
+const blogPosts = new mongoose.model("blogPosts", blogSchema);
+module.exports = blogPosts;
